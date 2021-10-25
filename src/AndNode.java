@@ -2,7 +2,12 @@ import java.util.ArrayList;
 
 public class AndNode extends LogicNode {
 
-    ArrayList<Node> invertedPrerequisites = new ArrayList<>();
+    ArrayList<Node> invertedPrerequisites;
+
+    public AndNode() {
+        super();
+        invertedPrerequisites = new ArrayList<>();
+    }
 
     @Override
     public void addPrerequisite(Node node) {
@@ -22,4 +27,8 @@ public class AndNode extends LogicNode {
         setLogicallySatisfied();
     }
 
+    @Override
+    public String toString() {
+        return "All Of:\n";
+    }
 }

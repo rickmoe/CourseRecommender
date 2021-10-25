@@ -1,3 +1,5 @@
+import javax.imageio.metadata.IIOMetadataFormatImpl;
+
 public class OrNode extends LogicNode {
 
     @Override
@@ -6,4 +8,8 @@ public class OrNode extends LogicNode {
         setLogicallySatisfied();
     }
 
+    @Override
+    public String toString() {
+        return "Any Of:\n";
+    }
 }

@@ -5,6 +5,11 @@ public abstract class Node {
     protected LinkedList<Node> prerequisites;
     protected LinkedList<Node> prerequisitesFor;
 
+    public Node() {
+        prerequisites = new LinkedList<>();
+        prerequisitesFor = new LinkedList<>();
+    }
+
     public void addPrerequisite(Node node) {
         prerequisites.add(node);
         node.getPrerequisitesFor().add(this);
@@ -39,13 +44,18 @@ public abstract class Node {
 
     public boolean remove() {
         if (!canBeRemoved()) return false;
-        for (Node node : prerequisitesFor) {
-            node.removePrerequisite(this);
-        }
-        for (Node node : prerequisites) {
-            node.removePrerequisiteFor(this);
-        }
+        for (Node node : prerequisitesFor) node.removePrerequisite(this);
+        for (Node node : prerequisites) node.removePrerequisiteFor(this);
         return true;
     }
 
+    public String toStringWithChildren() {
+        return toStringWithChildren(0);
+    }
+
+    public String toStringWithChildren(int indentLevel) {
+        String output = " | ".repeat(indentLevel) + this.toString();
+        for(Node prerequisite : prerequisites) output += prerequisite.toStringWithChildren(indentLevel + 1);
+        return output;
+    }
 }

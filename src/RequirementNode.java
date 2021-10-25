@@ -3,6 +3,7 @@ public class RequirementNode extends Node {
     String requirement;
 
     public RequirementNode(String requirement) {
+        super();
         this.requirement = requirement;
     }
 
@@ -14,4 +15,8 @@ public class RequirementNode extends Node {
         this.requirement = requirement;
     }
 
+    @Override
+    public String toString() {
+        return requirement + "\n";
+    }
 }
