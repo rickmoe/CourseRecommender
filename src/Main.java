@@ -59,6 +59,76 @@ public class Main {
                 int numRequired = Integer.parseInt(categoryList[1].substring(atLeastIndex + 1, categoryList[1].indexOf("[")));
                 nodes.put(categoryList[0] + " at least", new AtLeastNode(numRequired));
                 nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " at least"));
+
+                String coursesString = categoryList[1].substring(categoryList[1].indexOf("[") + 1, categoryList[1].lastIndexOf("]"));
+                String[] atLeastConditions = coursesString.split(",");
+                for (String condition : atLeastConditions) {
+                    if (condition.contains("+")) {
+                        nodes.put(categoryList[0] + " or " + condition, new OrNode());      // TODO: FIX ME..................
+                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(categoryList[0] + " or " + condition));
+
+                        String[] orList = condition.split("\\+");
+                        for (String list: orList) {
+                            if (list.contains("*")) {
+                                nodes.put(categoryList[0] + " and " + list, new AndNode());
+                                nodes.get(categoryList[0] + " or " + condition).addPrerequisite(nodes.get(categoryList[0] + " and " + list));
+
+                                String[] andList = condition.split("\\*");
+                                for (String course : andList) {
+                                    nodes.put(course, new RequirementNode(course));
+                                    nodes.get(categoryList[0] + " and " + list).addPrerequisite(nodes.get(course));
+                                }
+                            } else {
+                                nodes.put(list, new RequirementNode(list));
+                                nodes.get(categoryList[0] + " or " + condition).addPrerequisite(nodes.get(list));
+                            }
+                        }
+                    } else if (condition.contains("*")) {
+                        nodes.put(categoryList[0] + " and " + condition, new AndNode());
+                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(categoryList[0] + " and " + condition));
+
+                        String[] andList = condition.split("\\*");
+                        for (String course : andList) {
+                            nodes.put(course, new RequirementNode(course));
+                            nodes.get(categoryList[0] + " and " + condition).addPrerequisite(nodes.get(course));
+                        }
+                    } else {
+                        nodes.put(condition, new RequirementNode(condition));
+                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(condition));
+                    }
+                }
+            } else if (categoryList[1].contains("+")) {
+                nodes.put(categoryList[0] + " or", new OrNode());
+                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " or"));
+
+                String[] orList = categoryList[1].split("\\+");
+                for (String list : orList) {
+                    if (list.contains("*")) {
+                        nodes.put(categoryList[0] + " and " + list, new AndNode());
+                        nodes.get(categoryList[0] + " or").addPrerequisite(nodes.get(categoryList[0] + " and " + list));
+
+                        String[] andList = list.split("\\*");
+                        for (String course : andList) {
+                            nodes.put(course, new RequirementNode(course));
+                            nodes.get(categoryList[0] + " and " + list).addPrerequisite(nodes.get(course));
+                        }
+                    } else {
+                        nodes.put(list, new RequirementNode(list));
+                        nodes.get(categoryList[0] + " or").addPrerequisite(nodes.get(list));
+                    }
+                }
+            } else if (categoryList[1].contains("*")) {
+                nodes.put(categoryList[0] + " and", new AndNode());
+                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " and"));
+
+                String[] andList = categoryList[1].split("\\*");
+                for (String course : andList) {
+                    nodes.put(course, new RequirementNode(course));
+                    nodes.get(categoryList[0] + " and").addPrerequisite(nodes.get(course));
+                }
+            } else {
+                nodes.put(categoryList[1], new RequirementNode(categoryList[1]));
+                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[1]));
             }
         }
 
