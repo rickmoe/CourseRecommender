@@ -10,6 +10,6 @@ public class OrNode extends LogicNode {
 
     @Override
     public String toString() {
-        return "Any Of:\n";
+        return "Any Of:";
     }
 }

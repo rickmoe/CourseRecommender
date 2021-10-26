@@ -18,7 +18,7 @@ public class AtLeastNode extends LogicNode {
 
     @Override
     public String toString() {
-        return (numRequired - numSatisfied != 1) ? "Pick " + (numRequired - numSatisfied) + " Of:\n" : "Any Of:\n";
+        return (numRequired - numSatisfied != 1) ? "Pick " + (numRequired - numSatisfied) + " Of:" : "Any Of:";
     }
 
 }

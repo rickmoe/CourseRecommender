@@ -29,6 +29,6 @@ public class AndNode extends LogicNode {
 
     @Override
     public String toString() {
-        return "All Of:\n";
+        return "All Of:";
     }
 }

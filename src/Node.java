@@ -54,7 +54,7 @@ public abstract class Node {
     }
 
     public String toStringWithChildren(int indentLevel) {
-        String output = " | ".repeat(indentLevel) + this.toString();
+        String output = " : ".repeat(indentLevel) + this.toString() + "\n";
         for(Node prerequisite : prerequisites) output += prerequisite.toStringWithChildren(indentLevel + 1);
         return output;
     }
