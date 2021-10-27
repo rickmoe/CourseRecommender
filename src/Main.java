@@ -1,4 +1,3 @@
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -16,6 +15,7 @@ public class Main {
         System.out.println("Please enter your major: ");
         while (majorData == null) {
             userInput = scnr.nextLine();
+            if (userInput.equals("test")) userInput = "computer sciences, b.s.";
             for (LinkedList<String> data : majorsList) {
                 if (data.equals(headers)) continue;
                 if (userInput.toLowerCase().equals(data.get(headers.indexOf("major")).toLowerCase()))
@@ -29,106 +29,48 @@ public class Main {
             userInput = scnr.nextLine();
             if (!userInput.equals("esc")) classesTaken.add(userInput.toUpperCase());
         }
-
-//        System.out.println();
-//        System.out.println("You've taken...");
-//        for (String value : classesTaken) System.out.println("- " + value);
-//        System.out.println();
-//        System.out.println("You need to take...");
-//        for (String value : majorData) {
-//            LinkedList<String> splitVals = CSVReader.parseCSVLine(value, ";");
-//            if (splitVals.size() < 2) continue;
-//            System.out.println("- " + splitVals.get(0) + " : \t" + splitVals.get(1));
-//        }
+        System.out.println();
 
         // Construct graph based on majors and classes taken
-        HashMap<String, Node> nodes = new HashMap<>();
-        RequirementNode root = new RequirementNode("Graduation");
-        nodes.put("root", root);
-        nodes.put(majorData.get(headers.indexOf("major")), new RequirementNode(majorData.get(headers.indexOf("major"))));
-        root.addPrerequisite(nodes.get(majorData.get(headers.indexOf("major"))));
+        NodeManager tree = new NodeManager();
+        String majorName = majorData.get(headers.indexOf("major"));
+        tree.addBelow("root", majorName);
         for (String category : majorData) {
             if (majorData.indexOf(category) < headers.indexOf("requirements**")) continue;
             String[] categoryList = category.split(";");
-            nodes.put(categoryList[0], new RequirementNode(categoryList[0]));
-            nodes.get(majorData.get(headers.indexOf("major"))).addPrerequisite(nodes.get(categoryList[0]));
-            System.out.println(categoryList[1]);
-
-            int atLeastIndex = categoryList[1].indexOf("#");
-            if (atLeastIndex != -1) {
-                int numRequired = Integer.parseInt(categoryList[1].substring(atLeastIndex + 1, categoryList[1].indexOf("[")));
-                nodes.put(categoryList[0] + " at least", new AtLeastNode(numRequired));
-                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " at least"));
-
-                String coursesString = categoryList[1].substring(categoryList[1].indexOf("[") + 1, categoryList[1].lastIndexOf("]"));
-                String[] atLeastConditions = coursesString.split(",");
-                for (String condition : atLeastConditions) {
-                    if (condition.contains("+")) {
-                        nodes.put(categoryList[0] + " or " + condition, new OrNode());      // TODO: FIX ME..................
-                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(categoryList[0] + " or " + condition));
-
-                        String[] orList = condition.split("\\+");
-                        for (String list: orList) {
-                            if (list.contains("*")) {
-                                nodes.put(categoryList[0] + " and " + list, new AndNode());
-                                nodes.get(categoryList[0] + " or " + condition).addPrerequisite(nodes.get(categoryList[0] + " and " + list));
-
-                                String[] andList = condition.split("\\*");
-                                for (String course : andList) {
-                                    nodes.put(course, new RequirementNode(course));
-                                    nodes.get(categoryList[0] + " and " + list).addPrerequisite(nodes.get(course));
-                                }
-                            } else {
-                                nodes.put(list, new RequirementNode(list));
-                                nodes.get(categoryList[0] + " or " + condition).addPrerequisite(nodes.get(list));
-                            }
-                        }
-                    } else if (condition.contains("*")) {
-                        nodes.put(categoryList[0] + " and " + condition, new AndNode());
-                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(categoryList[0] + " and " + condition));
-
-                        String[] andList = condition.split("\\*");
-                        for (String course : andList) {
-                            nodes.put(course, new RequirementNode(course));
-                            nodes.get(categoryList[0] + " and " + condition).addPrerequisite(nodes.get(course));
-                        }
+            RequirementNode categoryNode = new RequirementNode(categoryList[0]);
+            tree.addBelow(majorName, categoryNode);
+            LinkedList<Node> nodeStack = new LinkedList<>();
+            nodeStack.add(categoryNode);
+            LinkedList<String[]> stringListStack = new LinkedList<>();
+            stringListStack.push(new String[] {categoryList[1]});
+            while (!nodeStack.isEmpty()) {
+                Node parent = nodeStack.pop();
+                String[] prerequisites = stringListStack.pop();
+                for (String string : prerequisites) {
+                    if (string.length() > 2 && string.charAt(0) == '#') {
+                        int numRequired = Integer.parseInt(string.substring(1, string.indexOf('[')));
+                        AtLeastNode atLeastNode = new AtLeastNode(numRequired);
+                        tree.addBelow(parent, atLeastNode);
+                        nodeStack.add(atLeastNode);
+                        String[] atLeastConditions = string.substring(string.indexOf('[') + 1, string.indexOf(']')).split(",");
+                        stringListStack.add(atLeastConditions);
+                    } else if (string.contains("+")) {
+                        OrNode orNode = new OrNode();
+                        tree.addBelow(parent, orNode);
+                        nodeStack.add(orNode);
+                        String[] orConditions = string.split("\\+");
+                        stringListStack.add(orConditions);
+                    } else if (string.contains("*")) {
+                        AndNode andNode = new AndNode();
+                        tree.addBelow(parent, andNode);
+                        nodeStack.add(andNode);
+                        String[] andConditions = string.split("\\*");
+                        stringListStack.add(andConditions);
                     } else {
-                        nodes.put(condition, new RequirementNode(condition));
-                        nodes.get(categoryList[0] + " at least").addPrerequisite(nodes.get(condition));
+                        tree.addBelow(parent, string);
                     }
                 }
-            } else if (categoryList[1].contains("+")) {
-                nodes.put(categoryList[0] + " or", new OrNode());
-                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " or"));
-
-                String[] orList = categoryList[1].split("\\+");
-                for (String list : orList) {
-                    if (list.contains("*")) {
-                        nodes.put(categoryList[0] + " and " + list, new AndNode());
-                        nodes.get(categoryList[0] + " or").addPrerequisite(nodes.get(categoryList[0] + " and " + list));
-
-                        String[] andList = list.split("\\*");
-                        for (String course : andList) {
-                            nodes.put(course, new RequirementNode(course));
-                            nodes.get(categoryList[0] + " and " + list).addPrerequisite(nodes.get(course));
-                        }
-                    } else {
-                        nodes.put(list, new RequirementNode(list));
-                        nodes.get(categoryList[0] + " or").addPrerequisite(nodes.get(list));
-                    }
-                }
-            } else if (categoryList[1].contains("*")) {
-                nodes.put(categoryList[0] + " and", new AndNode());
-                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[0] + " and"));
-
-                String[] andList = categoryList[1].split("\\*");
-                for (String course : andList) {
-                    nodes.put(course, new RequirementNode(course));
-                    nodes.get(categoryList[0] + " and").addPrerequisite(nodes.get(course));
-                }
-            } else {
-                nodes.put(categoryList[1], new RequirementNode(categoryList[1]));
-                nodes.get(categoryList[0]).addPrerequisite(nodes.get(categoryList[1]));
             }
         }
 
@@ -143,6 +85,7 @@ public class Main {
         // Sort remaining combos based on credit count
 
         // Present results to user
-        System.out.println(root.toStringWithChildren());
+//        for (Node majorNode : root.getPrerequisites()) System.out.println(majorNode.toStringWithChildren());
+        for (Node majorNode : tree.getRoot().getPrerequisites()) System.out.println(majorNode.toStringWithChildren());
     }
 }
