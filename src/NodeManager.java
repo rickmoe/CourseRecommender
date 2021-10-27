@@ -2,38 +2,59 @@ import java.util.HashMap;
 
 public class NodeManager {
 
+    private static final String ROOT_NAME = "root";
     private final HashMap<String, Node> nodes;
 
     public NodeManager() {
         nodes = new HashMap<>();
-        nodes.put("root", new RequirementNode("Root"));
+        nodes.put(ROOT_NAME, new RequirementNode(ROOT_NAME));
     }
 
-    public boolean addBelow(String parentName, RequirementNode toAdd) {
-        if (!nodes.containsKey(parentName.toLowerCase()) || toAdd == null) return false;
-        nodes.put(toAdd.toString().toLowerCase(), toAdd);
+    public boolean addBelow(String parentName, Node toAdd) {
+        if (!inTree(parentName.toLowerCase()) || toAdd == null) return false;
+        if (toAdd instanceof RequirementNode) nodes.put(toAdd.toString().toLowerCase(), toAdd);
         nodes.get(parentName.toLowerCase()).addPrerequisite(toAdd);
         return true;
     }
 
     public boolean addBelow(String parentName, String toAdd) {
+        if (toAdd == null) return false;
+        else if (inTree(toAdd)) return addBelow(parentName, nodes.get(toAdd));
         return addBelow(parentName, new RequirementNode(toAdd));
     }
 
-    public boolean addBelow(String parentName, LogicNode toAdd, Node[] children) {
-        if (!nodes.containsKey(parentName.toLowerCase()) || toAdd == null || children == null || children.length < 1) return false;
-        nodes.get(parentName.toLowerCase()).addPrerequisite(toAdd);
-        for (Node child : children) {
-            nodes.put(child.toString().toLowerCase(), child);
-            toAdd.addPrerequisite(child);
-        }
+    public boolean addBelow(Node parent, Node toAdd) {
+        if (parent == null || toAdd == null || !connectedToTree(parent)) return false;
+        if (toAdd instanceof RequirementNode) nodes.put(toAdd.toString().toLowerCase(), toAdd);
+        parent.addPrerequisite(toAdd);
         return true;
     }
 
-    public boolean addBelow(LogicNode toAdd, String parentName, String[] children) {
-        Node[] childNodes = new Node[children.length];
-        for (int i = 0; i < children.length; i++) childNodes[i] = new RequirementNode(children[i]);
-        return addBelow(parentName, toAdd, childNodes);
+    public boolean addBelow(Node parent, String toAdd) {
+        if (toAdd == null) return false;
+        else if (inTree(toAdd)) return addBelow(parent, nodes.get(toAdd));
+        return addBelow(parent, new RequirementNode(toAdd));
+    }
+
+    public boolean connectedToTree(Node node) {
+        if (node.equals(nodes.get(ROOT_NAME))) return true;
+        boolean connected = false;
+        for (Node parent : node.getPrerequisitesFor()) {
+            if (connectedToTree(parent)) connected = true;
+        }
+        return connected;
+    }
+
+    public Node getRoot() {
+        return nodes.get(ROOT_NAME);
+    }
+
+    public Node get(String nodeName) {
+        return nodes.get(nodeName);
+    }
+
+    public boolean inTree(String nodeName) {
+        return nodes.containsKey(nodeName);
     }
 
 }
