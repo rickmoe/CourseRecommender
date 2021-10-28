@@ -1,7 +1,7 @@
 public class AtLeastNode extends LogicNode {
 
+    private final int numRequired;
     private int numSatisfied;
-    private int numRequired;
 
     public AtLeastNode(int numRequired) {
         super();

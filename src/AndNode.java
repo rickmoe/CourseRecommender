@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class AndNode extends LogicNode {
 
-    ArrayList<Node> invertedPrerequisites;
+    private final ArrayList<Node> invertedPrerequisites;
 
     public AndNode() {
         super();
