@@ -36,6 +36,19 @@ public class NodeManager {
         return addBelow(parent, new RequirementNode(toAdd));
     }
 
+    public boolean addBelow(AndNode parent, String toAdd, boolean invert) {
+        if (toAdd == null) return false;
+        else if (inTree(toAdd)) return addBelow(parent, nodes.get(toAdd));
+        return addBelow(parent, new RequirementNode(toAdd), invert);
+    }
+
+    public boolean addBelow(AndNode parent, Node toAdd, boolean invert) {
+        if (parent == null || toAdd == null || !connectedToTree(parent)) return false;
+        if (toAdd instanceof RequirementNode) nodes.put(toAdd.toString().toLowerCase(), toAdd);
+        parent.addPrerequisite(toAdd, invert);
+        return true;
+    }
+
     public boolean connectedToTree(Node node) {
         if (node.equals(nodes.get(ROOT_NAME))) return true;
         boolean connected = false;

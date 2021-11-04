@@ -58,4 +58,10 @@ public abstract class Node {
         for(Node prerequisite : prerequisites) output += prerequisite.toStringWithChildren(indentLevel + 1);
         return output;
     }
+
+    public String toStringWithChildren(int indentLevel, boolean inverted) {
+        String output = " : ".repeat(indentLevel) + "Not " + this.toString() + "\n";
+        for(Node prerequisite : prerequisites) output += prerequisite.toStringWithChildren(indentLevel + 1);
+        return output;
+    }
 }

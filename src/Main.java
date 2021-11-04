@@ -40,38 +40,7 @@ public class Main {
             String[] categoryList = category.split(";");
             RequirementNode categoryNode = new RequirementNode(categoryList[0]);
             tree.addBelow(majorName, categoryNode);
-            LinkedList<Node> nodeStack = new LinkedList<>();
-            nodeStack.add(categoryNode);
-            LinkedList<String[]> stringListStack = new LinkedList<>();
-            stringListStack.push(new String[] {categoryList[1]});
-            while (!nodeStack.isEmpty()) {
-                Node parent = nodeStack.pop();
-                String[] prerequisites = stringListStack.pop();
-                for (String string : prerequisites) {
-                    if (string.length() > 2 && string.charAt(0) == '#') {
-                        int numRequired = Integer.parseInt(string.substring(1, string.indexOf('[')));
-                        AtLeastNode atLeastNode = new AtLeastNode(numRequired);
-                        tree.addBelow(parent, atLeastNode);
-                        nodeStack.add(atLeastNode);
-                        String[] atLeastConditions = string.substring(string.indexOf('[') + 1, string.indexOf(']')).split(",");
-                        stringListStack.add(atLeastConditions);
-                    } else if (string.contains("+")) {
-                        OrNode orNode = new OrNode();
-                        tree.addBelow(parent, orNode);
-                        nodeStack.add(orNode);
-                        String[] orConditions = string.split("\\+");
-                        stringListStack.add(orConditions);
-                    } else if (string.contains("*")) {
-                        AndNode andNode = new AndNode();
-                        tree.addBelow(parent, andNode);
-                        nodeStack.add(andNode);
-                        String[] andConditions = string.split("\\*");
-                        stringListStack.add(andConditions);
-                    } else {
-                        tree.addBelow(parent, string);
-                    }
-                }
-            }
+            BuildSubtreeHelper.buildSubtree(tree, categoryNode, categoryList[1]);
         }
 
         // Remove courses that must be taken and can be directly taken, iterate until none found
