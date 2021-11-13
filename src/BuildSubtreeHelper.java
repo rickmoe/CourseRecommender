@@ -18,6 +18,13 @@ public class BuildSubtreeHelper {
                     nodeStack.add(atLeastNode);
                     String[] atLeastConditions = string.substring(string.indexOf('[') + 1, string.lastIndexOf(']')).split(",");
                     stringListStack.add(atLeastConditions);
+                } else if (string.length() > 2 && string.charAt(0) == '$') {
+                    int creditsRequired = Integer.parseInt(string.substring(1, string.indexOf('[')));
+                    AtLeastCreditNode atLeastCreditNode = new AtLeastCreditNode(creditsRequired);
+                    tree.addBelow(parent, atLeastCreditNode);
+                    nodeStack.add(atLeastCreditNode);
+                    String[] atLeastCreditConditions = string.substring(string.indexOf('[') + 1, string.lastIndexOf(']')).split(",");
+                    stringListStack.add(atLeastCreditConditions);
                 } else if (string.contains("+")) {
                     OrNode orNode = new OrNode();
                     tree.addBelow(parent, orNode);
