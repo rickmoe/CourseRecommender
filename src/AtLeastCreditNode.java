@@ -1,24 +1,31 @@
-public class AtLeastCreditNode extends LogicNode {
+public class AtLeastCreditNode extends Node {
 
-    private final int creditsRequired;
-    private int creditsSatisfied;
+    protected final int numRequired;
+    protected int numToSatisfy;
 
-    public AtLeastCreditNode(int creditsRequired) {
+    public AtLeastCreditNode(int numRequired) {
         super();
-        this.creditsRequired = creditsRequired;
-        creditsSatisfied = 0;
+        this.numRequired = numRequired;
+        numToSatisfy = numRequired;
     }
 
     @Override
-    public void removePrerequisite(Node node) {
-        super.removePrerequisite(node);
-        if (node instanceof RequirementNode) creditsSatisfied += ((RequirementNode)node).getCredits();
-        if (creditsSatisfied >= creditsRequired) setLogicallySatisfied();
+    public void updateSatisfied() {
+        numToSatisfy = numRequired;
+        for (Node child : this.children) {
+            if (child instanceof RequirementNode && child.satisfied) {
+                numToSatisfy -= ((RequirementNode)child).credits;
+            }
+        }
+        this.satisfied = (numToSatisfy <= 0);
+        for (Node parent : this.parents) {
+            parent.updateSatisfied();
+        }
     }
 
     @Override
     public String toString() {
-        return "Needs " + (creditsRequired - creditsSatisfied) + " Credits From: ";
+        return "Needs " + (numToSatisfy) + " Credits From:";
     }
 
 }

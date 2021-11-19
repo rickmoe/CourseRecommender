@@ -1,11 +1,15 @@
-import javax.imageio.metadata.IIOMetadataFormatImpl;
+public class OrNode extends Node {
 
-public class OrNode extends LogicNode {
-
-    @Override
-    public void removePrerequisite(Node node) {
-        super.removePrerequisite(node);
-        setLogicallySatisfied();
+    public void updateSatisfied() {
+        satisfied = false;
+        for (Node child : this.children) {
+            if (child.satisfied) {
+                satisfied = true;
+            }
+        }
+        for (Node parent : this.parents) {
+            parent.updateSatisfied();
+        }
     }
 
     @Override

@@ -1,24 +1,31 @@
-public class AtLeastNode extends LogicNode {
+public class AtLeastNode extends Node {
 
-    private final int numRequired;
-    private int numSatisfied;
+    protected final int numRequired;
+    protected int numToSatisfy;
 
     public AtLeastNode(int numRequired) {
         super();
         this.numRequired = numRequired;
-        numSatisfied = 0;
+        numToSatisfy = numRequired;
     }
 
     @Override
-    public void removePrerequisite(Node node) {
-        super.removePrerequisite(node);
-        numSatisfied++;
-        if (numSatisfied >= numRequired) setLogicallySatisfied();
+    public void updateSatisfied() {
+        numToSatisfy = numRequired;
+        for (Node child : this.children) {
+            if (child.satisfied) {
+                numToSatisfy--;
+            }
+        }
+        this.satisfied = (numToSatisfy <= 0);
+        for (Node parent : this.parents) {
+            parent.updateSatisfied();
+        }
     }
 
     @Override
     public String toString() {
-        return (numRequired - numSatisfied != 1) ? "Pick " + (numRequired - numSatisfied) + " Of:" : "Any Of:";
+        return (numToSatisfy != 1) ? "Pick " + (numToSatisfy) + " Of:" : "Any Of:";
     }
 
 }

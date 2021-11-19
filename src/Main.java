@@ -34,12 +34,12 @@ public class Main {
         // Construct graph based on majors and classes taken
         NodeManager tree = new NodeManager();
         String majorName = majorData.get(headers.indexOf("major"));
-        tree.addBelow("root", majorName);
+        tree.add(NodeManager.ROOT_NAME, new RequirementNode(majorName));
         for (String category : majorData) {
             if (majorData.indexOf(category) < headers.indexOf("requirements**")) continue;
             String[] categoryList = category.split(";");
             RequirementNode categoryNode = new RequirementNode(categoryList[0]);
-            tree.addBelow(majorName, categoryNode);
+            tree.add(majorName, categoryNode);
             BuildSubtreeHelper.buildSubtree(tree, categoryNode, categoryList[1]);
         }
 
@@ -54,6 +54,8 @@ public class Main {
         // Sort remaining combos based on credit count
 
         // Present results to user
-        for (Node majorNode : tree.getRoot().getPrerequisites()) System.out.println(majorNode.toStringWithChildren());
+        for (Node majorNode : tree.get(NodeManager.ROOT_NAME).children) {
+            System.out.println(majorNode.toStringWithChildren());
+        }
     }
 }

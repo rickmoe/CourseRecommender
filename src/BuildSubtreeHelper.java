@@ -14,33 +14,38 @@ public class BuildSubtreeHelper {
                 if (string.length() > 2 && string.charAt(0) == '#') {
                     int numRequired = Integer.parseInt(string.substring(1, string.indexOf('[')));
                     AtLeastNode atLeastNode = new AtLeastNode(numRequired);
-                    tree.addBelow(parent, atLeastNode);
+                    tree.add(parent, atLeastNode);
                     nodeStack.add(atLeastNode);
                     String[] atLeastConditions = string.substring(string.indexOf('[') + 1, string.lastIndexOf(']')).split(",");
                     stringListStack.add(atLeastConditions);
                 } else if (string.length() > 2 && string.charAt(0) == '$') {
                     int creditsRequired = Integer.parseInt(string.substring(1, string.indexOf('[')));
                     AtLeastCreditNode atLeastCreditNode = new AtLeastCreditNode(creditsRequired);
-                    tree.addBelow(parent, atLeastCreditNode);
+                    tree.add(parent, atLeastCreditNode);
                     nodeStack.add(atLeastCreditNode);
                     String[] atLeastCreditConditions = string.substring(string.indexOf('[') + 1, string.lastIndexOf(']')).split(",");
                     stringListStack.add(atLeastCreditConditions);
+                } else if (string.length() > 1 && string.charAt(0) == '~') {
+                    NotNode notNode = new NotNode();
+                    tree.add(parent, notNode);
+                    nodeStack.add(notNode);
+                    String[] notCondition = new String[]{string.substring(1)};
+                    stringListStack.add(notCondition);
                 } else if (string.contains("+")) {
                     OrNode orNode = new OrNode();
-                    tree.addBelow(parent, orNode);
+                    tree.add(parent, orNode);
                     nodeStack.add(orNode);
                     String[] orConditions = string.split("\\+");
                     stringListStack.add(orConditions);
                 } else if (string.contains("*")) {
                     AndNode andNode = new AndNode();
-                    tree.addBelow(parent, andNode);
+                    tree.add(parent, andNode);
                     nodeStack.add(andNode);
                     String[] andConditions = string.split("\\*");
                     stringListStack.add(andConditions);
-                } else if (parent instanceof AndNode && string.length() > 0 && string.charAt(0) == '~') {
-                    tree.addBelow((AndNode)parent, string.substring(1), true);
                 } else {
-                    tree.addBelow(parent, string);
+                    // FIXME: ADD CREDIT AMOUNT PARSED FROM COURSES FILE
+                    tree.add(parent, new RequirementNode(string, 0));
                 }
             }
         }

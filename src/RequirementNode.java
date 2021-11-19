@@ -1,7 +1,7 @@
 public class RequirementNode extends Node {
 
-    private final String requirement;
-    private final int credits;
+    protected final String requirement;
+    protected final int credits;
 
     public RequirementNode(String requirement, int credits) {
         super();
@@ -13,8 +13,16 @@ public class RequirementNode extends Node {
         this(requirement, 0);
     }
 
-    public int getCredits() {
-        return credits;
+    public void updateSatisfied() {
+        satisfied = true;
+        for (Node child : this.children) {
+            if (!child.satisfied) {
+                satisfied = false;
+            }
+        }
+        for (Node parent : this.parents) {
+            parent.updateSatisfied();
+        }
     }
 
     @Override
