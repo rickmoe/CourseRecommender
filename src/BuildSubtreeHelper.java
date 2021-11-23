@@ -45,7 +45,7 @@ public class BuildSubtreeHelper {
                     stringListStack.add(andConditions);
                 } else {
                     // FIXME: ADD CREDIT AMOUNT PARSED FROM COURSES FILE
-                    tree.add(parent, new RequirementNode(string, 0));
+                    tree.add(parent, new CourseNode(string, 0));
                 }
             }
         }

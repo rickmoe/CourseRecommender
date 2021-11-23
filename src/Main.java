@@ -24,10 +24,13 @@ public class Main {
             if (majorData == null) System.out.println("Please enter a valid major in the database: ");
         }
 
+        System.out.print("Please enter the classes you've taken. Enter \"esc\" to end the list.");
         while (!userInput.equals("esc")) {
-            System.out.println("Please enter the classes you've taken. Enter \"esc\" to end the list.");
             userInput = scnr.nextLine();
-            if (!userInput.equals("esc")) classesTaken.add(userInput.toUpperCase());
+            if (!userInput.equals("esc")) {
+                classesTaken.add(userInput.toUpperCase());
+                System.out.println("Class added");
+            }
         }
         System.out.println();
 
@@ -41,6 +44,10 @@ public class Main {
             RequirementNode categoryNode = new RequirementNode(categoryList[0]);
             tree.add(majorName, categoryNode);
             BuildSubtreeHelper.buildSubtree(tree, categoryNode, categoryList[1]);
+        }
+
+        for (String course : classesTaken) {
+            tree.setSatisfied(course);
         }
 
         // Remove courses that must be taken and can be directly taken, iterate until none found

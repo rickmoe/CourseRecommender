@@ -13,8 +13,8 @@ public class AtLeastCreditNode extends Node {
     public void updateSatisfied() {
         numToSatisfy = numRequired;
         for (Node child : this.children) {
-            if (child instanceof RequirementNode && child.satisfied) {
-                numToSatisfy -= ((RequirementNode)child).credits;
+            if (child instanceof CourseNode && child.satisfied) {
+                numToSatisfy -= ((CourseNode)child).credits;
             }
         }
         this.satisfied = (numToSatisfy <= 0);
